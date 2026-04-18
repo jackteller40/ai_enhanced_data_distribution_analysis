@@ -199,7 +199,7 @@ CREATE TABLE romantic_preferences (
 
     -- Relationship style they're seeking. 
     -- once we see what values people actually use.
-    relationship_style  searching_type_enum[],  -
+    relationship_style  searching_type_enum[],  
 
     priority_weights    JSONB NOT NULL DEFAULT '{}'::jsonb,
 
@@ -292,7 +292,7 @@ CREATE TABLE rejected_matches (
 
 -- Matcher's anti-join against this table runs per-user, per-match-type.
 CREATE INDEX rejected_matches_profile_type_idx
-    ON rejected_matches (profile_id, match_type);
+    ON rejected_matches (rejecter_id, match_type);
 
 
 -- ----------------------------------------------------------------------------
