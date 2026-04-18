@@ -199,7 +199,7 @@ CREATE TABLE romantic_preferences (
 
     -- Relationship style they're seeking. 
     -- once we see what values people actually use.
-    relationship_style  searching_type_enum[],  
+    relationship_style  searching_type_enum,  
 
     priority_weights    JSONB NOT NULL DEFAULT '{}'::jsonb,
 
