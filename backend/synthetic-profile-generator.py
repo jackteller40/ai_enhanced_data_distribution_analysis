@@ -29,7 +29,7 @@ def seed_database():
         cur = conn.cursor()
         print("Connected to database. Starting seed...")
 
-        for i in range(20):
+        for i in range(500):
             # 1. ACCOUNTS
             first_name = fake.first_name()
             last_name = fake.last_name()
@@ -56,6 +56,8 @@ def seed_database():
             likes_out = random.choice([True, False])
             is_smoker = random.choice([True, False])
             nicotine = random.choice([True, False])
+            relationship_style = random.choice(SEARCHING_TYPES)
+            self_gender = random.choice(GENDERS)
             user_height = random.randint(55, 85)
             cur.execute("""
                 INSERT INTO profiles (
@@ -67,15 +69,15 @@ def seed_database():
                     %s, %s, %s, %s, %s, 
                     %s, %s, %s, %s, %s, 
                     %s, %s, %s, %s::match_type_enum[], 
-                    %s, %s::self_gender[]
+                    %s, %s::self_gender
                 );
             """, (
                 profile_id, display_name, major, grad_year, clubs,
                 varsity, interests, fav_bar, likes_out,
                 is_smoker, nicotine, user_height, fake.paragraph(nb_sentences=2),
                 random.sample(MATCH_TYPES, k=random.randint(1, 2)),
-                random.choice(SEARCHING_TYPES),
-                [random.choice(GENDERS)]
+                relationship_style,
+                self_gender
             ))
 
             # 3. ROMANTIC PREFERENCES
@@ -88,13 +90,14 @@ def seed_database():
             cur.execute("""
                 INSERT INTO romantic_preferences (
                     profile_id, interested_in_genders, own_gender, 
-                    min_grad_yr, max_grad_yr, priority_weights
-                ) VALUES (%s, %s::gender_preference[], %s, %s, %s, %s);
+                    min_grad_yr, max_grad_yr, relationship_style, priority_weights
+                ) VALUES (%s, %s::gender_preference[], %s, %s, %s, %s, %s);
             """, (
                 profile_id, 
                 [random.choice(GENDER_PREFS)], 
-                random.choice(GENDERS),
+                self_gender,
                 grad_year - 2, grad_year + 2,
+                relationship_style,
                 json.dumps(romantic_weights)
             ))
 
@@ -103,14 +106,17 @@ def seed_database():
             
             cur.execute("""
                 INSERT INTO roommate_preferences (
-                    profile_id, sleep_schedule, cleanliness, noise_tolerance,
+                    profile_id, roommate_gender_preference, sleep_schedule, cleanliness, noise_tolerance,has_pets, ok_with_pets,
                     guests_frequency, on_campus, priority_weights
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """, (
                 profile_id,
+                random.choice(GENDER_PREFS),
                 random.choice(SLEEP_SCHEDULES),
                 random.randint(1, 5),
                 random.randint(1, 5),
+                random.choice([True, False]),
+                random.choice([True, False]),
                 random.choice(GUEST_FREQS),
                 random.choice([True, False]),
                 json.dumps(roommate_weights)
@@ -123,7 +129,7 @@ def seed_database():
             """, (profile_id, "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==", 0))
 
         conn.commit()
-        print(f"Successfully seeded 20 users!")
+        print(f"Successfully seeded 500 users!")
 
     except Exception as e:
         print(f"Error seeding data: {e}")
