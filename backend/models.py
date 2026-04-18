@@ -1,11 +1,16 @@
-from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy import Column, String, Boolean, DateTime, func
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 from db import Base
 
 
-class User(Base):
-    __tablename__ = "users"
+class Account(Base):
+    __tablename__ = "accounts"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    profile_id    = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email         = Column(String, unique=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    university    = Column(String, nullable=False)
+    verified      = Column(Boolean, nullable=False, default=False)
+    created_at    = Column(DateTime(timezone=True), server_default=func.now())
+    last_login    = Column(DateTime(timezone=True), nullable=True)

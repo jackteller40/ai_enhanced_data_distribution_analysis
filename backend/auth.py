@@ -48,7 +48,7 @@ def decode_access_token(token: str) -> dict:
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
-) -> models.User: # TODO: Implement correctly later when we have models set up
+) -> models.User:
     payload = decode_access_token(token)
     user_id: int = payload.get("sub")
     if user_id is None:
