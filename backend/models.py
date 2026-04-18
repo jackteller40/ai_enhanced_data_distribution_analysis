@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, func
+from sqlalchemy import Column, String, Boolean, Integer, Array, Enum, ForeignKey, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from db import Base
@@ -53,7 +53,7 @@ class ActiveMatch(Base):
     id           = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     profile_id_a = Column(UUID(as_uuid=True), ForeignKey("profiles.profile_id"), nullable=False)
     profile_id_b = Column(UUID(as_uuid=True), ForeignKey("profiles.profile_id"), nullable=False)
-    match_type   = Column(ENUM("romantic", "friend", "roommate", name="match_type_enum", create_type=False), nullable=False)
+    match_type   = Column(Enum("romantic", "friend", "roommate", name="match_type_enum", create_type=False), nullable=False)
     matched_at   = Column(DateTime(timezone=True), server_default=func.now())
 
 
