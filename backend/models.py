@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, Integer, Array, Enum, ForeignKey, DateTime, func
+from sqlalchemy import Column, String, Boolean, Integer, ARRAY, Enum, ForeignKey, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from db import Base
@@ -10,7 +10,6 @@ class Account(Base):
     profile_id    = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email         = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
-    verified      = Column(Boolean, nullable=False, default=False)
     created_at    = Column(DateTime(timezone=True), server_default=func.now())
     last_login    = Column(DateTime(timezone=True), nullable=True)
 
@@ -21,10 +20,10 @@ class Profile(Base):
     display_name    = Column(String, nullable=False)
     major           = Column(String, nullable=True)
     graduation_year = Column(Integer, nullable=True)
-    clubs           = Column(Array(String), nullable=False, server_default="{}")
-    varsity_sports  = Column(Array(String), nullable=True)
+    clubs           = Column(ARRAY(String), nullable=False, server_default="{}")
+    varsity_sports  = Column(ARRAY(String), nullable=True)
     bio             = Column(String, nullable=True)
-    interests       = Column(Array(String), nullable=False)
+    interests       = Column(ARRAY(String), nullable=False)
     favorite_bar    = Column(String, nullable=True)
     likes_going_out = Column(Boolean, nullable=True)
     smokes          = Column(Boolean, nullable=True)
@@ -32,12 +31,12 @@ class Profile(Base):
     height          = Column(Integer, nullable=True)
     gender          = Column(Enum('woman', 'man', 'nonbinary', 'queer/other', name="self_gender", create_type=False))
     looking_for     = Column(
-                        Array(Enum('romantic', 'roommate', name="match_type_enum", create_type=False)),
+                        ARRAY(Enum('romantic', 'roommate', name="match_type_enum", create_type=False)),
                         nullable=False,
                         server_default="{}"
                       )
     romantically_searching_for  = Column(
-                        Array(Enum('something serious', 'open for anything', 'short-term fun', name="searching_type_enum", create_type=False)),
+                        ARRAY(Enum('something serious', 'open for anything', 'short-term fun', name="searching_type_enum", create_type=False)),
                         nullable=False,
                         server_default="{}"
                       )

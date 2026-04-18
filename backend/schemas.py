@@ -8,7 +8,6 @@ from datetime import datetime
 class SignupRequest(BaseModel):
     email: EmailStr
     password: str
-    university: str
 
 
 class LoginRequest(BaseModel):
