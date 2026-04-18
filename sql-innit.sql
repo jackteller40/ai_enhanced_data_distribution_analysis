@@ -109,7 +109,7 @@ CREATE TABLE profiles (
     smokes           BOOLEAN,
     nicotine_lover   BOOLEAN,
     height          INT, --people can input as 5 foot 2, then a helper function will convert to inches that it is stored by
-    gender self_gender[],
+    gender          self_gender,
 
     -- Which match types the user is currently open to. Empty array = matching paused.
     looking_for      match_type_enum[] NOT NULL DEFAULT '{}',
