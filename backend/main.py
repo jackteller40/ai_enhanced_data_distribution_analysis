@@ -15,8 +15,7 @@ def signup(body: schemas.SignupRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=409, detail="Email already registered")
     account = models.Account(
         email=body.email,
-        password_hash=auth.hash_password(body.password),
-        university=body.university,
+        password_hash=auth.hash_password(body.password)
     )
     db.add(account)
     db.commit()
