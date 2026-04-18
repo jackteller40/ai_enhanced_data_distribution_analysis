@@ -44,18 +44,35 @@ def seed_database():
 
             # 2. PROFILES
             display_name = f"{first_name} {last_name}"
-            major = random.choice(['Computer Science', 'Fashion', 'Business', 'Psychology', 'Digital Media'])
+            major = random.choice(['Computer Science', 'Communications', 'Criminal Justice', 'Biology', 'Political Science', 'Education', 'Fashion', 'Business', 'Psychology', 'Digital Media'])
             grad_year = random.randint(2024, 2028)
-            clubs = random.sample(['SGA', 'Computer Societ', 'Dance Ensemble', 'Club Volleyball', 'Esports'], k=random.randint(1, 3))
-            
+            clubs = random.sample(['SGA', 'Habitat for Humanity', 'Campus Ministry', 'AI Club', 'Business Club', 'Marist Circle', 'Greek Advisory Council', 'Marist Model UN', 'Marist Republicans', 'Marist Moderates', 'Marist Democrats', 'Women in Media', 'Enharmonics', 'Marist Theatre', 'Girl Gains', 'Hispanic/Latino Club', 'Sikh Student Association', 'Marist International Students Association', 'Club Ultimate Frisbee', 'Club Rugby', 'Computer Society', 'Dance Ensemble', 'Club Volleyball', 'Esports'], k=random.randint(1, 3))
+            D1_SPORTS = ['Basketball', 'Football', 'Soccer', 'Lacrosse', 'Swimming', 'Rowing', 'Tennis', 'Volleyball']
+            HOBBIES = ['Hiking', 'Gaming', 'Reading', 'Cooking', 'Travel', 'Gym', 'Photography', 'Movies', 'Music Production', 'Yoga', 'Baking']
+            BAR_OPTIONS = ['Darbys', 'The Derby', 'Mahoneys']
+            varsity = random.sample(D1_SPORTS, k=1) if random.random() < 0.15 else None
+            interests = random.sample(HOBBIES, k=random.randint(2, 4))
+            fav_bar = random.choice(BAR_OPTIONS) if random.random() < 0.7 else None
+            likes_out = random.choice([True, False])
+            is_smoker = random.choice([True, False])
+            nicotine = random.choice([True, False])
+            user_height = random.randint(55, 85)
             cur.execute("""
                 INSERT INTO profiles (
                     profile_id, display_name, major, graduation_year, clubs, 
-                    bio, looking_for, romantically_searching_for, gender
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s::match_type_enum[], %s, %s::self_gender[]);
+                    varsity_sports, interests, favorite_bar, likes_going_out, 
+                    smokes, nicotine_lover, height, bio, looking_for, 
+                    romantically_searching_for, gender
+                ) VALUES (
+                    %s, %s, %s, %s, %s, 
+                    %s, %s, %s, %s, %s, 
+                    %s, %s, %s, %s::match_type_enum[], 
+                    %s, %s::self_gender[]
+                );
             """, (
                 profile_id, display_name, major, grad_year, clubs,
-                fake.paragraph(nb_sentences=2),
+                varsity, interests, fav_bar, likes_out,
+                is_smoker, nicotine, user_height, fake.paragraph(nb_sentences=2),
                 random.sample(MATCH_TYPES, k=random.randint(1, 2)),
                 random.choice(SEARCHING_TYPES),
                 [random.choice(GENDERS)]
