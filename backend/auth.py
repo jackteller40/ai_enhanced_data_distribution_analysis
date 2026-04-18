@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from db import get_db
 import models
+import uuid
 
 # --- Config ---
 SECRET_KEY = "change-this-in-production"  # move to .env
@@ -44,16 +45,20 @@ def decode_access_token(token: str) -> dict:
         )
 
 
-# --- Get current user from JWT ---
+# --- Dependency: get current account from JWT ---
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
-) -> models.User:
+) -> models.Account:
     payload = decode_access_token(token)
-    user_id: int = payload.get("sub")
-    if user_id is None:
+    raw_id = payload.get("sub")
+    if raw_id is None:
         raise HTTPException(status_code=401, detail="Invalid token payload")
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if user is None:
-        raise HTTPException(status_code=401, detail="User not found")
-    return user
+    try:
+        profile_id = uuid.UUID(raw_id)
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
+    account = db.query(models.Account).filter(models.Account.profile_id == profile_id).first()
+    if account is None:
+        raise HTTPException(status_code=401, detail="Account not found")
+    return account
