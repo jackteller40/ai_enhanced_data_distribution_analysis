@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 import uuid
+from datetime import datetime
 
 
 # --- Auth request bodies ---
@@ -24,7 +25,6 @@ class TokenResponse(BaseModel):
 class AccountResponse(BaseModel):
     profile_id: uuid.UUID
     email: str
-    university: str
     verified: bool
 
     class Config:
@@ -57,6 +57,29 @@ class ProfileResponse(BaseModel):
     clubs: List[str]
     looking_for: List[str]
     status: str
+
+    class Config:
+        from_attributes = True
+
+# --- Message Request shapes ---
+class SendMessageRequest(BaseModel):
+    content: str
+
+class MessageResponse(BaseModel):
+    id: uuid.UUID
+    conversation_id: uuid.UUID
+    sender_id: uuid.UUID
+    content: str
+    sent_at: datetime
+    read: bool
+
+    class Config:
+        from_attributes = True
+
+class ConversationResponse(BaseModel):
+    id: uuid.UUID
+    active_match_id: uuid.UUID
+    created_at: datetime
 
     class Config:
         from_attributes = True
