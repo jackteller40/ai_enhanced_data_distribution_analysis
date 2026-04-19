@@ -161,10 +161,18 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
             {"r": receiver_id, "c": c["profile_id"], "m": match_type, "score": s}
         ).scalar()
         suggestions_out.append({
-            "suggestion_id": str(sug_id),
-            "candidate_id": str(c["profile_id"]),
-            "display_name": c["display_name"],
-            "score": round (s, 3)
+            "id": str(sug_id),
+            "agent_explanation": None,
+            "match_score": round(s, 3),
+            "candidate_profile": {
+                "display_name": c["display_name"],
+                "graduation_year": c["graduation_year"],
+                "major": c["major"],
+                "bio": c["bio"],
+                "likes_going_out": c["likes_going_out"],
+                "clubs": list(c["clubs"] or []),
+                "photos": [],
+            }
         })
         
     db.commit()
