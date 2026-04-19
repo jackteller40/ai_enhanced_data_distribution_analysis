@@ -113,7 +113,7 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
                 """),
         {"me": receiver_id, "match_type": match_type}
     ).mappings().all()
-    
+     
     if not candidate_rows:
         return []
     
@@ -144,7 +144,6 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
                 weights = weights
             )
         except Exception as e:
-            print(f"ERROR scoring candidate {c.get('profile_id')}: {e}")
             continue
         if s <= 0.0: continue
         scored.append((c, s))
