@@ -44,15 +44,6 @@ def delete_account(
 
 # ── Profile ───────────────────────────────────────
 
-@app.post("/profile/setup", response_model=schemas.ProfileResponse, status_code=201)
-def setup_profile(
-    body: schemas.ProfileSetupRequest,
-    db: Session = Depends(get_db),
-    current_user: models.Account = Depends(auth.get_current_user),
-):
-    return profile.create_profile(current_user, body, db)
-
-
 @app.put("/profile", response_model=schemas.ProfileResponse)
 def update_profile(
     body: schemas.ProfileSetupRequest,
