@@ -134,11 +134,23 @@ class RoommatePreferencesResponse(BaseModel):
     class Config:
         from_attributes = True
         
-class SuggestionResponse(BaseModel):
-    suggestion_id: uuid.UUID
-    candidate_id: uuid.UUID
+class CandidateProfile(BaseModel):
     display_name: str
-    score: float
+    graduation_year: Optional[int]
+    major: Optional[str]
+    bio: Optional[str]
+    likes_going_out: Optional[bool]
+    clubs: List[str]
+    photos: List[str]
+
+class SuggestionResponse(BaseModel):
+    id: uuid.UUID
+    match_score: float
+    agent_explanation: Optional[str]
+    candidate_profile: CandidateProfile
+
+    class Config:
+        from_attributes = True
     
 class MatchResponse(BaseModel):
     match_id: uuid.UUID

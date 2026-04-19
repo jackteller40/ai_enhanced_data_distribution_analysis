@@ -15,12 +15,12 @@ def _parse_pg_array(val):
     return [p.strip() for p in next(reader, [])]
 
 def profile_to_dict(row) -> dict:
+    gender = row.get("gender")
     #convert a profile's row into the shape scoring.py expects
-    gender = row.gender
     if isinstance(gender, list):
         gender = gender[0] if gender else None
     return{
-        "gender": row.get("gender"),
+        "gender": gender,
         "graduation_year": row.get("graduation_year"),
         "major": row.get("major"),
         "clubs": _parse_pg_array(row.get("clubs")),
@@ -132,15 +132,20 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
     scored = []
     for c in candidate_rows:
         c_prefs_row = prefs_by_id.get(c["profile_id"])
-        if not c_prefs_row: continue
-        s = score(
-            receiver = receiver_dict,
-            receiver_prefs = receiver_prefs_dict,
-            candidate = profile_to_dict(c),
-            candidate_prefs = prefs_adapter(c_prefs_row),
-            match_type = match_type,
-            weights = weights
-        )
+        if not c_prefs_row:
+            continue
+        try:
+            s = score(
+                receiver = receiver_dict,
+                receiver_prefs = receiver_prefs_dict,
+                candidate = profile_to_dict(c),
+                candidate_prefs = prefs_adapter(c_prefs_row),
+                match_type = match_type,
+                weights = weights
+            )
+        except Exception as e:
+            print(f"ERROR scoring candidate {c.get('profile_id')}: {e}")
+            continue
         if s <= 0.0: continue
         scored.append((c, s))
         

@@ -1,0 +1,14 @@
+{
+  "display_name": "Pipeline Test",
+  "major": "Computer Science",
+  "graduation_year": 2026,
+  "gender": "man",
+  "height": 70,
+  "clubs": ["AI Club", "Chess"],
+  "interests": ["Hiking", "Gaming"],
+  "likes_going_out": true,
+  "smokes": false,
+  "nicotine_lover": false,
+  "looking_for": ["romantic"],
+  "romantically_searching_for": "something serious"
+}
