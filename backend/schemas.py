@@ -41,6 +41,12 @@ class ProfileSetupRequest(BaseModel):
     smokes: Optional[bool] = None
     clubs: List[str] = []
     looking_for: List[str] = []
+    varsity_sports: List[str] = []
+    interests: List[str] = []
+    nicotine_lover: Optional[bool] = None
+    height: Optional[int] = None
+    gender: Optional[str] = None
+    romantically_searching_for: Optional[str] = None
 
 
 # --- Profile response shapes ---
