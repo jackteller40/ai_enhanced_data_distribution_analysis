@@ -6,13 +6,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="MatchApp API")
 
-# Add this block to allow your Vite frontend to talk to FastAPI
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"], # Your Vite dev server port
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],
     allow_credentials=True,
-    allow_methods=["*"], # Allows GET, POST, PUT, DELETE, etc.
-    allow_headers=["*"], # Allows Authorization header
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ── Auth ──────────────────────────────────────────
