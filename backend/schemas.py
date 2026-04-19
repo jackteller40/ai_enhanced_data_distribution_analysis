@@ -104,7 +104,7 @@ class RomanticPreferencesRequest(BaseModel):
     priority_weights: Optional[dict] = None
 
 class RoommatePreferencesRequest(BaseModel):
-    roomate_gender_preference: Optional[str] = None
+    roommate_gender_preference: Optional[str] = None
     sleep_schedule: Optional[str] = None
     cleanlieness: Optional[int] = None
     noise_tolerance: Optional[int] = None
@@ -127,7 +127,7 @@ class RomanticPreferencesResponse(BaseModel):
         
 class RoommatePreferencesResponse(BaseModel):
     profile_id: uuid.UUID
-    roomate_gender_preference: Optional[str]
+    roommate_gender_preference: Optional[str]
     sleep_schedule: Optional[str]
     cleanliness: Optional[int]
     noise_tolerance: Optional[int]

@@ -20,7 +20,7 @@ def upsert_romantic_preferences(
     db.refresh(prefs)
     return prefs
 
-def upsert_roommate_preferencs(
+def upsert_roommate_preferences(
     account: models.Account,
     body: schemas.RoommatePreferencesRequest,
     db: Session
