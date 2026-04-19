@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { api } from "../api";
+import { useNavigate } from "react-router-dom"
 
 export default function Queue({ onLogout }) {
+  const navigate = useNavigate();
   const [suggestion, setSuggestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,16 +65,24 @@ export default function Queue({ onLogout }) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Simple Header */}
-      <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-blue-600">MatchApp</h1>
-        <button 
-          onClick={onLogout}
-          className="text-sm font-medium text-gray-500 hover:text-gray-800"
-        >
-          Sign Out
-        </button>
-      </header>
+        {/* Simple Header */}
+        <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+            <h1 className="text-2xl font-extrabold text-blue-600 tracking-tight">MatchApp</h1>
+            <div className="flex items-center gap-6">
+                <button 
+                onClick={() => navigate('/profile')}
+                className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                Edit Profile
+                </button>
+                <button 
+                onClick={onLogout}
+                className="text-sm font-semibold text-gray-400 hover:text-red-500 transition-colors"
+                >
+                Sign Out
+                </button>
+            </div>
+        </header>
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col items-center justify-center p-4">

@@ -25,47 +25,57 @@ export default function Signup({ onLogin }) {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "80px auto", padding: "0 24px" }}>
-      <h1 style={{ marginBottom: 24 }}>Create account</h1>
+    <div className="max-w-md mx-auto mt-20 px-6">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Create account</h1>
+        <p className="text-gray-500 mt-2">Use your student email to get started.</p>
+      </div>
 
       {error && (
-        <p style={{ color: "red", marginBottom: 16 }}>{error}</p>
+        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm font-medium text-center">
+          {error}
+        </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: "block", marginBottom: 6 }}>Email</label>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ width: "100%", padding: "8px 12px", fontSize: 16, boxSizing: "border-box" }}
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            placeholder="you@marist.edu"
           />
         </div>
 
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: "block", marginBottom: 6 }}>Password</label>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: "100%", padding: "8px 12px", fontSize: 16, boxSizing: "border-box" }}
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            placeholder="••••••••"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          style={{ width: "100%", padding: "10px", fontSize: 16, cursor: "pointer" }}
+          className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors mt-2 shadow-sm"
         >
           {loading ? "Creating account..." : "Sign up"}
         </button>
       </form>
 
-      <p style={{ marginTop: 16, textAlign: "center" }}>
-        Already have an account? <Link to="/login">Sign in</Link>
+      <p className="mt-8 text-center text-sm text-gray-500">
+        Already have an account?{" "}
+        <Link to="/login" className="text-blue-600 hover:text-blue-800 font-bold">
+          Sign in
+        </Link>
       </p>
     </div>
   );
