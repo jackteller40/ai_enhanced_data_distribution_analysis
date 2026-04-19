@@ -98,3 +98,51 @@ def mark_read(
     current_user: models.Account = Depends(auth.get_current_user),
 ):
     conversation.mark_read(current_user, conversation_id, db)
+    
+# ── Swipe ──────────────────────────────────
+
+@app.post("/suggestions/{suggestion_id}/like", response_model=schemas.LikeResponse)
+def like_suggestion(
+    suggestion_id: str,
+    db: Session = Depends(get_db),
+    current_user: models.Account = Depends(auth.get_current_user)
+):
+    from swipe import handle_like
+    from uuid import UUID
+    try:
+        result = handle_like(db, UUID(suggestion_id), current_user.profile_id)
+    except ValueError as e:
+        db.rollback()
+        raise HTTPException(status_code = 404, detail = str(e))
+    return {
+        "status": result.status,
+        "active_match_id": str(result.active_match_id) if result.active_match_id else None
+    }
+    
+@app.post("/suggestions/{suggestion_id}/reject", status_code = 204)
+def reject_suggestion(
+    suggestion_id: str,
+    db: Session = Depends(get_db),
+    current_user: models.Account = Depends(auth.get_current_user)
+):
+    from swipe import handle_reject
+    from uuid import UUID
+    try:
+        handle_reject(db, UUID(suggestion_id), current_user.profile_id)
+    except ValueError as e:
+        db.rollback()
+        raise HTTPException(status_code = 404, detail = str(e))
+    
+# ── Queue ──────────────────────────────────
+
+@app.get("/queue", response_model = list[schemas.SuggestionResponse])
+def get_queue(
+    match_type: str,
+    db: Session = Depends(get_db),
+    current_user: models.Account = Depends(auth.get_current_user)
+):
+    from queue_service import get_queue as build_queue
+    try:
+        return build_queue(current_user.profile_id, match_type, db)
+    except ValueError as e:
+        raise HTTPException(status_code = 400, detail = str(e))

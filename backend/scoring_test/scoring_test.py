@@ -12,7 +12,7 @@ Run from backend/:
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from scoring import score
+from backend.scoring_test.scoring import score
 
 
 DB_CONFIG = {
