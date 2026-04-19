@@ -5,6 +5,7 @@ import models, schemas, auth, profile, conversation
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from dotenv import load_dotenv
+from uuid import UUID
 
 load_dotenv()
 
@@ -35,6 +36,45 @@ def signup(body: schemas.SignupRequest, db: Session = Depends(get_db)):
     token = auth.create_access_token({"sub": str(account.profile_id)})
     return {"access_token": token}
 '''
+
+def seed_demo_matches(profile_id: UUID, db: Session):
+    """Give a new user 2 pre-made matches so the matches page isn't empty."""
+    import random
+
+    # Pick 2 random active profiles that aren't this user
+    candidates = db.execute(text("""
+        SELECT profile_id, display_name FROM profiles
+        WHERE profile_id <> :me
+          AND status = 'active'
+        ORDER BY RANDOM()
+        LIMIT 2
+    """), {"me": profile_id}).mappings().all()
+
+    for candidate in candidates:
+        cand_id = candidate["profile_id"]
+
+        # Sort UUIDs to satisfy active_matches CHECK (profile_id_a < profile_id_b)
+        lo, hi = sorted([str(profile_id), str(cand_id)])
+        lo, hi = UUID(lo), UUID(hi)
+
+        # Insert active_match (ignore if already exists)
+        match_row = db.execute(text("""
+            INSERT INTO active_matches (profile_id_a, profile_id_b, match_type)
+            VALUES (:a, :b, 'romantic')
+            ON CONFLICT (profile_id_a, profile_id_b, match_type) DO NOTHING
+            RETURNING id
+        """), {"a": lo, "b": hi}).mappings().first()
+
+        if match_row:
+            # Create conversation for this match
+            db.execute(text("""
+                INSERT INTO conversations (active_match_id)
+                VALUES (:mid)
+                ON CONFLICT (active_match_id) DO NOTHING
+            """), {"mid": match_row["id"]})
+
+    db.commit()
+    
 @app.post("/signup", response_model=schemas.TokenResponse, status_code=201)
 def signup(body: schemas.SignupRequest, db: Session = Depends(get_db)):
     import json
@@ -93,6 +133,11 @@ def signup(body: schemas.SignupRequest, db: Session = Depends(get_db)):
 
     db.commit()
     db.refresh(account)
+    token = auth.create_access_token({"sub": str(account.profile_id)})
+    
+    db.commit()
+    db.refresh(account)
+    seed_demo_matches(account.profile_id, db)  # ← add this line
     token = auth.create_access_token({"sub": str(account.profile_id)})
     return {"access_token": token}
 
