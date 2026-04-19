@@ -117,7 +117,7 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
                   AND s.match_type = :match_type
                   AND s.status IN ('liked', 'matched')
                 )
-                LIMIT 100
+                LIMIT 500
                 """),
         {"me": receiver_id, "match_type": match_type}
     ).mappings().all()
