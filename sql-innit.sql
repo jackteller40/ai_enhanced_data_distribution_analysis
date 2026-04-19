@@ -204,6 +204,8 @@ CREATE TABLE romantic_preferences (
     priority_weights    JSONB NOT NULL DEFAULT '{}'::jsonb,
 
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    min_preferred_height        INT,
+    max_preferred_height        INT,
 
     CONSTRAINT romantic_weights_is_object
         CHECK (jsonb_typeof(priority_weights) = 'object')

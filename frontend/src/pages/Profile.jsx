@@ -29,7 +29,7 @@ export default function Profile() {
     // Base Profile
     display_name: "", major: "", graduation_year: "2026", bio: "",
     favorite_bar: "", likes_going_out: "", smokes: "", nicotine_lover: "",
-    height: "", gender: "", looking_for: [], romantically_searching_for: "",
+    height_ft: "", height_in: "", gender: "", looking_for: [], romantically_searching_for: "",
     clubs: "", varsity_sports: "", interests: "",
     
     // Romantic Prefs
@@ -60,7 +60,8 @@ export default function Profile() {
           likes_going_out: profile.likes_going_out === null ? "" : String(profile.likes_going_out),
           smokes: profile.smokes === null ? "" : String(profile.smokes),
           nicotine_lover: profile.nicotine_lover === null ? "" : String(profile.nicotine_lover),
-          height: profile.height || "",
+          height_ft: profile.height ? Math.floor(profile.height / 12) : "",
+          height_in: profile.height ? profile.height % 12 : "",
           gender: profile.gender || "",
           looking_for: profile.looking_for || [],
           romantically_searching_for: profile.romantically_searching_for || "",
@@ -123,7 +124,7 @@ export default function Profile() {
         likes_going_out: form.likes_going_out === "" ? null : form.likes_going_out === "true",
         smokes: form.smokes === "" ? null : form.smokes === "true",
         nicotine_lover: form.nicotine_lover === "" ? null : form.nicotine_lover === "true",
-        height: form.height ? parseInt(form.height) : null,
+        height: (form.height_ft || form.height_in) ? (parseInt(form.height_ft || 0) * 12) + parseInt(form.height_in || 0) : null,
         gender: form.gender || null,
         looking_for: form.looking_for,
         romantically_searching_for: form.romantically_searching_for || null,
@@ -221,8 +222,13 @@ export default function Profile() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Height (inches)</label>
-                <input name="height" type="number" value={form.height} onChange={handleChange} className={inputClass} placeholder="68" />
+                <label className={labelClass}>Height</label>
+                <div className="flex gap-2 items-center">
+                  <input name="height_ft" type="number" value={form.height_ft || ""} onChange={handleChange} className={`${inputClass} w-24`} placeholder="5" min="3" max="8" />
+                  <span className="text-gray-500 font-medium">ft</span>
+                  <input name="height_in" type="number" value={form.height_in || ""} onChange={handleChange} className={`${inputClass} w-24`} placeholder="10" min="0" max="11" />
+                  <span className="text-gray-500 font-medium">in</span>
+                </div>
               </div>
               <div>
                 <label className={labelClass}>Gender</label>
