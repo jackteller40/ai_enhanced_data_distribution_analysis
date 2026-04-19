@@ -25,7 +25,7 @@ def generate_explanation(receiver: dict, candidate: dict) -> str | None:
         context = ", ".join(context_parts) if context_parts else "similar vibes"
 
         prompt = (
-            f"Write one short, friendly sentence explaining why two Marist students "
+            f"Write one short, friendly sentence (in the first person) explaining why two Marist students "
             f"might hit it off. They have {context}. "
             f"Sound natural and warm, not robotic. Under 20 words."
         )
