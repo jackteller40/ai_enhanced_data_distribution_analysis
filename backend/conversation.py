@@ -20,9 +20,19 @@ def send_message(account: models.Account, conversation_id, body: schemas.SendMes
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
 
+    match = db.query(models.ActiveMatch).filter(models.ActiveMatch.id == conversation.active_match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+
+    if match.profile_id_a == account.profile_id:
+        recipient_id = match.profile_id_b
+    else:
+        recipient_id = match.profile_id_a
+
     message = models.Message(
         conversation_id = conversation_id,
         sender_id       = account.profile_id,
+        recipient_id    = recipient_id,
         content         = body.content,
     )
     db.add(message)

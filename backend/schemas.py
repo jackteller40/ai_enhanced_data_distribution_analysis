@@ -80,6 +80,7 @@ class MessageResponse(BaseModel):
     id: uuid.UUID
     conversation_id: uuid.UUID
     sender_id: uuid.UUID
+    recipient_id: uuid.UUID
     content: str
     sent_at: datetime
     read: bool
