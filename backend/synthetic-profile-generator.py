@@ -2,6 +2,8 @@ import psycopg2
 from faker import Faker
 import random
 import json
+import base64  # NEW IMPORT
+import os      # NEW IMPORT
 
 # Initialize Faker
 fake = Faker()
@@ -23,6 +25,45 @@ GENDER_PREFS = ['women', 'men', 'nonbinary/queer identities', 'everyone']
 SLEEP_SCHEDULES = ['early bird', 'night owl', 'flexible']
 GUEST_FREQS = ['often', 'rarely', 'sometimes']
 
+# --- NEW: Convert Stock Photos to Base64 ---
+# Establish the directory path
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Build the absolute path to demo_faces
+FACES_DIR = os.path.join(SCRIPT_DIR, 'demo_faces')
+ENCODED_STOCK_PHOTOS = []
+
+print(f"--- Loading stock photos from '{FACES_DIR}' ---")
+
+# Check if the folder exists
+if not os.path.exists(FACES_DIR):
+    print(f"ERROR: The folder '{FACES_DIR}' was not found. Please ensure it exists in the same directory as this script.")
+    # Fallback placeholder in case the folder isn't found
+    ENCODED_STOCK_PHOTOS = ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="] 
+else:
+    # Read and encode JPEG files from the folder
+    for filename in os.listdir(FACES_DIR):
+        if filename.lower().endswith(('.jpg', '.jpeg')):
+            filepath = os.path.join(FACES_DIR, filename)
+            try:
+                with open(filepath, "rb") as image_file:
+                    # Encode image to Base64
+                    encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+                    # Format as data URI
+                    data_uri = f"data:image/jpeg;base64,{encoded_string}"
+                    ENCODED_STOCK_PHOTOS.append(data_uri)
+            except Exception as e:
+                print(f"Warning: Could not encode {filename}: {e}")
+
+    # Safety check if images are found
+    if not ENCODED_STOCK_PHOTOS:
+        print(f"ERROR: No JPEG images found in '{FACES_DIR}'. Please check the files.")
+        # Fallback
+        ENCODED_STOCK_PHOTOS = ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="]
+    else:
+        print(f"Successfully loaded and encoded {len(ENCODED_STOCK_PHOTOS)} stock photos.")
+
+
 def seed_database():
     try:
         conn = psycopg2.connect(**DB_CONFIG)
@@ -33,6 +74,7 @@ def seed_database():
             # 1. ACCOUNTS
             first_name = fake.first_name()
             last_name = fake.last_name()
+            # Generate email based on name
             email = f"{first_name.lower()}.{last_name.lower()}{random.randint(1,99)}@marist.edu"
             
             cur.execute("""
@@ -46,19 +88,26 @@ def seed_database():
             display_name = f"{first_name} {last_name}"
             major = random.choice(['Computer Science', 'Communications', 'Criminal Justice', 'Biology', 'Political Science', 'Education', 'Fashion', 'Business', 'Psychology', 'Digital Media'])
             grad_year = random.randint(2024, 2028)
+            # Sampling 1-3 random clubs
             clubs = random.sample(['SGA', 'Habitat for Humanity', 'Campus Ministry', 'AI Club', 'Business Club', 'Marist Circle', 'Greek Advisory Council', 'Marist Model UN', 'Marist Republicans', 'Marist Moderates', 'Marist Democrats', 'Women in Media', 'Enharmonics', 'Marist Theatre', 'Girl Gains', 'Hispanic/Latino Club', 'Sikh Student Association', 'Marist International Students Association', 'Club Ultimate Frisbee', 'Club Rugby', 'Computer Society', 'Dance Ensemble', 'Club Volleyball', 'Esports'], k=random.randint(1, 3))
+            
+            # sampled options based on your schema
             D1_SPORTS = ['Basketball', 'Football', 'Soccer', 'Lacrosse', 'Swimming', 'Rowing', 'Tennis', 'Volleyball']
             HOBBIES = ['Hiking', 'Gaming', 'Reading', 'Cooking', 'Travel', 'Gym', 'Photography', 'Movies', 'Music Production', 'Yoga', 'Baking']
             BAR_OPTIONS = ['Darbys', 'The Derby', 'Mahoneys']
+            
+            # Logic for conditional fields
             varsity = random.sample(D1_SPORTS, k=1) if random.random() < 0.15 else None
             interests = random.sample(HOBBIES, k=random.randint(2, 4))
             fav_bar = random.choice(BAR_OPTIONS) if random.random() < 0.7 else None
             likes_out = random.choice([True, False])
             is_smoker = random.choice([True, False])
             nicotine = random.choice([True, False])
+            
             relationship_style = random.choice(realtionship_TYPES)
             self_gender = random.choice(GENDERS)
-            user_height = random.randint(55, 85)
+            user_height = random.randint(55, 85) # converting feet to inches
+            
             cur.execute("""
                 INSERT INTO profiles (
                     profile_id, display_name, major, graduation_year, clubs, 
@@ -75,6 +124,7 @@ def seed_database():
                 profile_id, display_name, major, grad_year, clubs,
                 varsity, interests, fav_bar, likes_out,
                 is_smoker, nicotine, user_height, fake.paragraph(nb_sentences=2),
+                # Sampling looking_for options
                 random.sample(MATCH_TYPES, k=random.randint(1, 2)),
                 relationship_style,
                 self_gender
@@ -122,14 +172,17 @@ def seed_database():
                 json.dumps(roommate_weights)
             ))
 
-            # 5. PROFILE PHOTOS (Placeholder Base64)
+            # 5. PROFILE PHOTOS (MODIFIED: Random Stock Photo)
+            # Select a random Base64 string from our pre-loaded pool
+            photo_base64 = random.choice(ENCODED_STOCK_PHOTOS)
+
             cur.execute("""
                 INSERT INTO profile_photos (profile_id, photo_base64, position)
                 VALUES (%s, %s, %s);
-            """, (profile_id, "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==", 0))
+            """, (profile_id, photo_base64, 0))
 
         conn.commit()
-        print(f"Successfully seeded 500 users!")
+        print(f"Successfully seeded 500 users with stock photos!")
 
     except Exception as e:
         print(f"Error seeding data: {e}")

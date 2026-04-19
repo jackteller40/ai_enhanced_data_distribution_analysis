@@ -149,6 +149,7 @@ class CandidateProfile(BaseModel):
     likes_going_out: Optional[bool]
     clubs: List[str]
     photos: List[str]
+    photo_base64: Optional[str] = None
 
 class SuggestionResponse(BaseModel):
     id: uuid.UUID

@@ -133,10 +133,14 @@ export default function Queue({ onLogout }) {
             {/* Photo Section */}
             <div className="relative aspect-[4/5] bg-gray-200">
               <img
-                src={suggestion.candidate_profile.photos?.[0] || "https://via.placeholder.com/400x500?text=No+Photo"}
+                // Try looking for the array FIRST, but if it's not there, try the raw column name!
+                src={suggestion.candidate_profile.photos?.[0] || suggestion.candidate_profile.photo_base64 || "https://via.placeholder.com/400x500?text=No+Photo"}
                 alt={suggestion.candidate_profile.display_name}
                 className="w-full h-full object-cover"
-                onError={(e) => { e.target.src = "https://via.placeholder.com/400x500?text=Image+Error"; }}
+                onError={(e) => { 
+                    e.target.onerror = null; // Stops the infinite loop!
+                    e.target.src = "https://via.placeholder.com/400x500?text=Image+Error"; 
+                }}
               />
               {/* Gradient overlay for text readability */}
               <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">

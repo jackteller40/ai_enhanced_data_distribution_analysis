@@ -96,8 +96,9 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
     #2: candidate pool
     candidate_rows = db.execute(
         text("""
-             SELECT p.*
+             SELECT p.*, pp.photo_base64
              FROM profiles p
+             LEFT JOIN profile_photos pp ON p.profile_id = pp.profile_id AND pp.position = 0
              WHERE p.profile_id <> :me
                 AND p.status = 'active'
                 AND :match_type = ANY(p.looking_for)
@@ -105,12 +106,12 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
                     SELECT 1 FROM blocked_users b
                     WHERE (b.blocker_id = :me AND b.blocked_id = p.profile_id)
                         OR (b.blocker_id = p.profile_id AND b.blocked_id = :me)
-                )AND NOT EXISTS (
+                ) AND NOT EXISTS (
                     SELECT 1 FROM rejected_matches r
                     WHERE r.match_type = :match_type AND (
                     (r.rejecter_id = :me AND r.rejected_id = p.profile_id)
                     OR (r.rejected_id = :me AND r.rejecter_id = p.profile_id))
-                )AND NOT EXISTS (
+                ) AND NOT EXISTS (
                 SELECT 1 FROM suggestions s
                 WHERE s.receiver_id = :me
                   AND s.candidate_id = p.profile_id
@@ -198,7 +199,8 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
                 "bio": c["bio"],
                 "likes_going_out": c["likes_going_out"],
                 "clubs": list(c["clubs"] or []),
-                "photos": [],
+                "photos": [], 
+                "photo_base64": c.get("photo_base64") # <--- Add this line right here!
             }
         })
 
