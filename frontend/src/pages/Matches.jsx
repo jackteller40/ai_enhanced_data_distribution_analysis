@@ -1,101 +1,83 @@
-import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 
-export default function Chat() {
-  const { conversationId } = useParams();
+export default function Matches({ onLogout }) {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([]);
-  const [content, setContent] = useState("");
+  const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
-  const [currentProfileId, setCurrentProfileId] = useState(null);
-  const bottomRef = useRef(null);
 
   useEffect(() => {
-    api.getProfile()
-      .then((data) => setCurrentProfileId(data.profile_id))
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    api.getMessages(conversationId)
-      .then((data) => setMessages(data || []))
+    api.getMatches()
+      .then((data) => setMatches(data || []))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [conversationId]);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  async function handleSend(e) {
-    e.preventDefault();
-    if (!content.trim()) return;
-    setSending(true);
-    try {
-      const newMessage = await api.sendMessage(conversationId, { content });
-      setMessages((prev) => [...prev, newMessage]);
-      setContent("");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSending(false);
-    }
-  }
+  }, []);
 
   if (loading) return <p className="p-6">Loading...</p>;
 
   return (
-    <div className="flex flex-col h-screen max-w-xl mx-auto">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
 
-      <div className="flex items-center gap-4 px-6 py-4 border-b border-gray-200">
-        <button onClick={() => navigate("/matches")} className="text-xl bg-transparent border-none cursor-pointer">
-          ←
-        </button>
-        <h2 className="text-lg font-medium m-0">Chat</h2>
-      </div>
+      <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+        <h1 className="text-2xl font-extrabold text-blue-600 tracking-tight">Matches</h1>
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => navigate("/queue")}
+            className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors"
+          >
+            Queue
+          </button>
+          <button
+            onClick={onLogout}
+            className="text-sm font-semibold text-gray-400 hover:text-red-500 transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
+      </header>
 
-      <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-2">
-        {error && <p className="text-red-500">{error}</p>}
-        {messages.length === 0 && (
-          <p className="text-gray-400 text-center">No messages yet. Say hi!</p>
+      <main className="flex-1 max-w-xl mx-auto w-full px-4 py-6">
+
+        {error && (
+          <p className="text-red-500 text-center">{error}</p>
         )}
 
-        {messages.map((msg) => {
-          const isMine = msg.sender_id === currentProfileId;
-          return (
-            <div key={msg.id} className={`flex flex-col max-w-[70%] ${isMine ? "self-end items-end" : "self-start items-start"}`}>
-              <div className={`px-4 py-2 text-sm ${isMine ? "bg-blue-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm" : "bg-gray-100 text-black rounded-t-2xl rounded-br-2xl rounded-bl-sm"}`}>
-                {msg.content}
+        {!loading && matches.length === 0 && !error && (
+          <div className="text-center p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
+            <div className="text-4xl mb-4">💫</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">No matches yet</h2>
+            <p className="text-gray-500 mb-6">Head to the queue to start connecting.</p>
+            <button
+              onClick={() => navigate("/queue")}
+              className="px-6 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-colors"
+            >
+              Go to queue
+            </button>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-3">
+          {matches.map((match) => (
+            <button
+              key={match.match_id}
+              onClick={() => navigate(`/chat/${match.conversation_id}`)}
+              className="flex items-center gap-4 bg-white px-5 py-4 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all text-left w-full"
+            >
+              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg flex-shrink-0">
+                {match.other_display_name?.[0]?.toUpperCase() || "?"}
               </div>
-              <p className="text-xs text-gray-400 mt-1 mx-1">
-                {new Date(msg.sent_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              </p>
-            </div>
-          );
-        })}
-        <div ref={bottomRef} />
-      </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-900 truncate">{match.other_display_name}</p>
+                <p className="text-sm text-gray-400 capitalize">{match.match_type} match</p>
+              </div>
+              <span className="text-gray-300 text-xl">›</span>
+            </button>
+          ))}
+        </div>
 
-      <form onSubmit={handleSend} className="flex gap-3 px-6 py-3 border-t border-gray-200">
-        <input
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Message..."
-          disabled={sending}
-          className="flex-1 px-4 py-2 text-sm rounded-full border border-gray-300 outline-none"
-        />
-        <button
-          type="submit"
-          disabled={sending || !content.trim()}
-          className="px-5 py-2 text-sm rounded-full bg-blue-500 text-white border-none cursor-pointer disabled:opacity-50"
-        >
-          {sending ? "..." : "Send"}
-        </button>
-      </form>
-
+      </main>
     </div>
   );
 }
