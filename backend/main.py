@@ -59,7 +59,7 @@ def update_profile(
     db: Session = Depends(get_db),
     current_user: models.Account = Depends(auth.get_current_user),
 ):
-    return profile.update_profile(current_user, body, db)
+    return profile.upsert_profile(current_user, body, db)
 
 
 @app.get("/profile/me", response_model=schemas.ProfileResponse)

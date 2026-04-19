@@ -31,14 +31,13 @@ def create_profile(account: models.Account, body: schemas.ProfileSetupRequest, d
     db.refresh(profile)
     return profile
 
-def update_profile(account: models.Account, body: schemas.ProfileSetupRequest, db: Session) -> models.Profile:
+def upsert_profile(account: models.Account, body: schemas.ProfileSetupRequest, db: Session) -> models.Profile:
     profile = db.query(models.Profile).filter(models.Profile.profile_id == account.profile_id).first()
     if not profile:
-        raise HTTPException(status_code=404, detail="Profile not found")
-
+        profile = models.Profile(profile_id=account.profile_id)
+        db.add(profile)
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(profile, field, value)
-
     db.commit()
     db.refresh(profile)
     return profile
