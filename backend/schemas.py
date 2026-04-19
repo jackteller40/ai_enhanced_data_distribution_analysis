@@ -59,8 +59,14 @@ class ProfileResponse(BaseModel):
     favorite_bar: Optional[str]
     likes_going_out: Optional[bool]
     smokes: Optional[bool]
+    nicotine_lover: Optional[bool]
+    height: Optional[int]
+    gender: Optional[str]
     clubs: List[str]
+    varsity_sports: Optional[List[str]]
+    interests: Optional[List[str]]
     looking_for: List[str]
+    romantically_searching_for: Optional[str]
     status: str
 
     class Config:

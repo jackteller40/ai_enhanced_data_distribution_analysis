@@ -29,6 +29,12 @@ export default function Matches({ onLogout }) {
           >
             Queue
           </button>
+          <button 
+                onClick={() => navigate('/profile')}
+                className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                Edit Profile
+                </button>
           <button
             onClick={onLogout}
             className="text-sm font-semibold text-gray-400 hover:text-red-500 transition-colors"
