@@ -34,7 +34,8 @@ export default function Profile() {
     
     // Romantic Prefs
     interested_in_genders: [], min_grad_yr: "", max_grad_yr: "",
-    min_preferred_height: "", max_preferred_height: "",
+    min_preferred_height_ft: "", min_preferred_height_in: "",
+    max_preferred_height_ft: "", max_preferred_height_in: "",
     
     // Roommate Prefs
     roommate_gender_preference: "", sleep_schedule: "",
@@ -74,9 +75,11 @@ export default function Profile() {
           interested_in_genders: romantic.interested_in_genders || [],
           min_grad_yr: romantic.min_grad_yr || "",
           max_grad_yr: romantic.max_grad_yr || "",
-          min_preferred_height: romantic.min_preferred_height || "",
-          max_preferred_height: romantic.max_preferred_height || "",
-        }),
+          min_preferred_height_ft: romantic.min_preferred_height ? Math.floor(romantic.min_preferred_height / 12) : "",
+          min_preferred_height_in: romantic.min_preferred_height ? romantic.min_preferred_height % 12 : "",
+          max_preferred_height_ft: romantic.max_preferred_height ? Math.floor(romantic.max_preferred_height / 12) : "",
+          max_preferred_height_in: romantic.max_preferred_height ? romantic.max_preferred_height % 12 : "",
+          }),
         // Roommate prefs
         ...(roommate && {
           roommate_gender_preference: roommate.roommate_gender_preference || "",
@@ -141,8 +144,8 @@ export default function Profile() {
           interested_in_genders: form.interested_in_genders.length ? form.interested_in_genders : null,
           min_grad_yr: form.min_grad_yr ? parseInt(form.min_grad_yr) : null,
           max_grad_yr: form.max_grad_yr ? parseInt(form.max_grad_yr) : null,
-          min_preferred_height: form.min_preferred_height ? parseInt(form.min_preferred_height) : null,
-          max_preferred_height: form.max_preferred_height ? parseInt(form.max_preferred_height) : null,
+          min_preferred_height: (form.min_preferred_height_ft || form.min_preferred_height_in) ? (parseInt(form.min_preferred_height_ft || 0) * 12) + parseInt(form.min_preferred_height_in || 0) : null,
+          max_preferred_height: (form.max_preferred_height_ft || form.max_preferred_height_in) ? (parseInt(form.max_preferred_height_ft || 0) * 12) + parseInt(form.max_preferred_height_in || 0) : null,
         }));
       }
 
@@ -336,12 +339,22 @@ export default function Profile() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className={labelClass}>Min Height (in)</label>
-                    <input name="min_preferred_height" type="number" value={form.min_preferred_height} onChange={handleChange} className={inputClass} placeholder="60" />
+                    <label className={labelClass}>Min Height</label>
+                    <div className="flex gap-2 items-center">
+                      <input name="min_preferred_height_ft" type="number" value={form.min_preferred_height_ft || ""} onChange={handleChange} className={`${inputClass} w-20`} placeholder="5" min="3" max="8" />
+                      <span className="text-gray-500 font-medium">ft</span>
+                      <input name="min_preferred_height_in" type="number" value={form.min_preferred_height_in || ""} onChange={handleChange} className={`${inputClass} w-20`} placeholder="0" min="0" max="11" />
+                      <span className="text-gray-500 font-medium">in</span>
+                    </div>
                   </div>
                   <div>
-                    <label className={labelClass}>Max Height (in)</label>
-                    <input name="max_preferred_height" type="number" value={form.max_preferred_height} onChange={handleChange} className={inputClass} placeholder="78" />
+                    <label className={labelClass}>Max Height</label>
+                    <div className="flex gap-2 items-center">
+                      <input name="max_preferred_height_ft" type="number" value={form.max_preferred_height_ft || ""} onChange={handleChange} className={`${inputClass} w-20`} placeholder="6" min="3" max="8" />
+                      <span className="text-gray-500 font-medium">ft</span>
+                      <input name="max_preferred_height_in" type="number" value={form.max_preferred_height_in || ""} onChange={handleChange} className={`${inputClass} w-20`} placeholder="0" min="0" max="11" />
+                      <span className="text-gray-500 font-medium">in</span>
+                    </div>
                   </div>
                 </div>
               </div>
