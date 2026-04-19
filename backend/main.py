@@ -16,7 +16,7 @@ app.add_middleware(
 )
 
 # ── Auth ──────────────────────────────────────────
-
+'''
 @app.post("/signup", response_model=schemas.TokenResponse, status_code=201)
 def signup(body: schemas.SignupRequest, db: Session = Depends(get_db)):
     existing = db.query(models.Account).filter(models.Account.email == body.email).first()
@@ -31,7 +31,67 @@ def signup(body: schemas.SignupRequest, db: Session = Depends(get_db)):
     db.refresh(account)
     token = auth.create_access_token({"sub": str(account.profile_id)})
     return {"access_token": token}
+'''
+@app.post("/signup", response_model=schemas.TokenResponse, status_code=201)
+def signup(body: schemas.SignupRequest, db: Session = Depends(get_db)):
+    import json
 
+    existing = db.query(models.Account).filter(models.Account.email == body.email).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="Email already registered")
+
+    account = models.Account(
+        email=body.email,
+        password_hash=auth.hash_password(body.password)
+    )
+    db.add(account)
+    db.flush()  # assigns profile_id without committing yet
+
+    # Default profile so the queue has something to work with
+    db.execute(text("""
+        INSERT INTO profiles (profile_id, display_name, status, looking_for)
+        VALUES (:pid, :name, 'active', ARRAY['romantic','roommate']::match_type_enum[])
+        ON CONFLICT (profile_id) DO NOTHING
+    """), {
+        "pid": account.profile_id,
+        "name": body.email.split("@")[0]
+    })
+
+    # Default romantic preferences — 'everyone' so gender filter passes for all new users
+    db.execute(text("""
+        INSERT INTO romantic_preferences (profile_id, interested_in_genders, priority_weights)
+        VALUES (:pid, ARRAY['everyone']::gender_preference[], :weights)
+        ON CONFLICT (profile_id) DO NOTHING
+    """), {
+        "pid": account.profile_id,
+        "weights": json.dumps({
+            "clubs": 1.0,
+            "interests": 1.0,
+            "major": 0.8,
+            "going_out": 0.7,
+            "smoking": 0.5
+        })
+    })
+
+    # Default roommate preferences
+    db.execute(text("""
+        INSERT INTO roommate_preferences (profile_id, cleanliness, noise_tolerance, priority_weights)
+        VALUES (:pid, 3, 3, :weights)
+        ON CONFLICT (profile_id) DO NOTHING
+    """), {
+        "pid": account.profile_id,
+        "weights": json.dumps({
+            "cleanliness": 1.0,
+            "noise_tolerance": 0.8,
+            "sleep_schedule": 0.7,
+            "smoking": 0.6
+        })
+    })
+
+    db.commit()
+    db.refresh(account)
+    token = auth.create_access_token({"sub": str(account.profile_id)})
+    return {"access_token": token}
 
 @app.post("/login", response_model=schemas.TokenResponse)
 def login(body: schemas.LoginRequest, db: Session = Depends(get_db)):
