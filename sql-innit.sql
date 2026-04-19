@@ -36,7 +36,7 @@ CREATE EXTENSION IF NOT EXISTS citext;
 -- ----------------------------------------------------------------------------
 
 CREATE TYPE match_type_enum AS ENUM ('romantic', 'roommate');
-CREATE TYPE searching_type_enum AS ENUM ('something serious', 'open for anything', 'short-term fun');
+CREATE TYPE relationship_type_enum AS ENUM ('something serious', 'open for anything', 'short-term fun');
 CREATE TYPE self_gender AS ENUM ('woman', 'man', 'nonbinary', 'queer/other');
 CREATE TYPE gender_preference AS ENUM ('women', 'men', 'nonbinary/queer identities', 'everyone');
 CREATE TYPE sleep_schedule_enum AS ENUM ('early bird', 'night owl', 'flexible');
@@ -113,7 +113,7 @@ CREATE TABLE profiles (
 
     -- Which match types the user is currently open to. Empty array = matching paused.
     looking_for      match_type_enum[] NOT NULL DEFAULT '{}',
-    romantically_searching_for    searching_type_enum,
+    romantically_searching_for    relationship_type_enum,
 
     -- Status controls whether the profile appears in matching and whether
     -- the account can log in. See profile_status enum above.
@@ -199,7 +199,7 @@ CREATE TABLE romantic_preferences (
 
     -- Relationship style they're seeking. 
     -- once we see what values people actually use.
-    relationship_style  searching_type_enum,  
+    relationship_style  relationship_type_enum,  
 
     priority_weights    JSONB NOT NULL DEFAULT '{}'::jsonb,
 

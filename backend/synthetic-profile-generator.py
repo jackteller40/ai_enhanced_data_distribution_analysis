@@ -17,7 +17,7 @@ DB_CONFIG = {
 
 # Enum Options from your schema
 MATCH_TYPES = ['romantic', 'roommate']
-SEARCHING_TYPES = ['something serious', 'open for anything', 'short-term fun']
+realtionship_TYPES = ['something serious', 'open for anything', 'short-term fun']
 GENDERS = ['woman', 'man', 'nonbinary', 'queer/other']
 GENDER_PREFS = ['women', 'men', 'nonbinary/queer identities', 'everyone']
 SLEEP_SCHEDULES = ['early bird', 'night owl', 'flexible']
@@ -56,7 +56,7 @@ def seed_database():
             likes_out = random.choice([True, False])
             is_smoker = random.choice([True, False])
             nicotine = random.choice([True, False])
-            relationship_style = random.choice(SEARCHING_TYPES)
+            relationship_style = random.choice(realtionship_TYPES)
             self_gender = random.choice(GENDERS)
             user_height = random.randint(55, 85)
             cur.execute("""

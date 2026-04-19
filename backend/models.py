@@ -39,7 +39,7 @@ class Profile(Base):
                         server_default="{}"
                       )
     romantically_searching_for  = Column(
-                        Enum('something serious', 'open for anything', 'short-term fun', name="searching_type_enum", create_type=False),
+                        Enum('something serious', 'open for anything', 'short-term fun', name="relationship_type_enum", create_type=False),
                         nullable=True
                       )
     status          = Column(Enum("active", "suspended", "deleted", name="profile_status", create_type=False), nullable=False, server_default="active")
@@ -112,7 +112,7 @@ class RomanticPreference(Base):
     own_gender           = Column(Enum('woman', 'man', 'nonbinary', 'queer/other', name="self_gender", create_type=False), nullable=True)
     min_grad_yr          = Column(Integer, nullable=True)
     max_grad_yr          = Column(Integer, nullable=True)
-    relationship_style   = Column(Enum('something serious', 'open for anything', 'short-term fun', name="searching_type_enum", create_type=False), nullable=True)
+    relationship_style   = Column(Enum('something serious', 'open for anything', 'short-term fun', name="relationship_type_enum", create_type=False), nullable=True)
     priority_weights     = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
     updated_at           = Column(DateTime(timezone=True), server_default=func.now())
 
