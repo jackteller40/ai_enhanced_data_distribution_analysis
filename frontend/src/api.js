@@ -61,4 +61,6 @@ export const api = {
   updateRoommatePreferences: (data) => fetchWithAuth('/preferences/roommate', { method: 'PUT', body: JSON.stringify(data) }),
   getRomanticPreferences: () => fetchWithAuth('/preferences/romantic'),
   getRoommatePreferences: () => fetchWithAuth('/preferences/roommate'),
+
+  getMatches: () => fetchWithAuth('/matches'),
 };
