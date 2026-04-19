@@ -4,6 +4,9 @@ from db import get_db
 import models, schemas, auth, profile, conversation
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="MatchApp API")
 

@@ -3,6 +3,8 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from scoring import score
+import concurrent.futures
+from llm import generate_explanation
 
 def _parse_pg_array(val):
     #parse postgres enum arrays that come back as strings like '{women}'
@@ -157,22 +159,37 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
     scored.sort(key = lambda x: x[1], reverse = True)
     top = scored[:limit]
     
-    #4: upsert into suggestions so /like and /reject have IDs to reference
+    # 4: Generate explanations in parallel, then upsert into suggestions
+    def build_suggestion(item):
+        c, s = item
+        explanation = generate_explanation(receiver_dict, profile_to_dict(c))
+        return c, s, explanation
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        results = list(executor.map(build_suggestion, top))
+
     suggestions_out = []
-    for c, s in top:
+    for c, s, explanation in results:
         sug_id = db.execute(
             text("""
-                 INSERT INTO suggestions (receiver_id, candidate_id, match_type, status, match_score)
-                 VALUES (:r, :c, :m, 'pending', :score)
-                 ON CONFLICT (receiver_id, candidate_id, match_type)
-                    DO UPDATE SET match_score = EXCLUDED.match_score
+                INSERT INTO suggestions (receiver_id, candidate_id, match_type, status, match_score, agent_explanation)
+                VALUES (:r, :c, :m, 'pending', :score, :explanation)
+                ON CONFLICT (receiver_id, candidate_id, match_type)
+                    DO UPDATE SET match_score = EXCLUDED.match_score,
+                                  agent_explanation = EXCLUDED.agent_explanation
                 RETURNING id
             """),
-            {"r": receiver_id, "c": c["profile_id"], "m": match_type, "score": s}
+            {
+                "r": receiver_id,
+                "c": c["profile_id"],
+                "m": match_type,
+                "score": s,
+                "explanation": explanation or "Our algorithm thinks you two would hit it off."
+            }
         ).scalar()
         suggestions_out.append({
             "id": str(sug_id),
-            "agent_explanation": None,
+            "agent_explanation": explanation or "Our algorithm thinks you two would hit it off.",
             "match_score": round(s, 3),
             "candidate_profile": {
                 "display_name": c["display_name"],
@@ -184,6 +201,8 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
                 "photos": [],
             }
         })
-        
+
+    db.commit()
+    return suggestions_out
     db.commit()
     return suggestions_out
