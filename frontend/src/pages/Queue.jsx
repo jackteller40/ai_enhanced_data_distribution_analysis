@@ -22,6 +22,8 @@ export default function Queue({ onLogout }) {
 
     try {
       const data = await api.getQueue(matchType);
+      console.log(data);
+
       // If the backend returns a list, grab the top match.
       if (data && data.length > 0) {
         setSuggestion(data[0]);
