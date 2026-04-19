@@ -53,7 +53,7 @@ def _find_reverse_liked(
     
     returns row or None
     '''
-    row = db.excecute(
+    row = db.execute(
         text("""
              SELECT id, status
              FROM suggestions
@@ -143,10 +143,10 @@ def handle_like(
     )
     
     if reverse is None:
-        db.exceute(
+        db.execute(
             text("""
                  UPDATE suggestions
-                 SET statuts = 'liked', acted_at = now()
+                 SET status = 'liked', acted_at = now()
                  WHERE id = :id
                  """     
             ),
@@ -165,7 +165,7 @@ def handle_like(
     db.execute(
         text("""
              UPDATE suggestions
-             SET status = 'matched', 'acted_at = now()
+             SET status = 'matched', acted_at = now()
              WHERE id IN (:this, :reverse)
              """),
         {"this": suggestion_id, "reverse": reverse["id"]},
@@ -204,11 +204,11 @@ def handle_reject(
     
     db.execute(
         text("""
-             INSERT INTO rejected_matches (rejecter_id), rejected_id, match_type)
+             INSERT INTO rejected_matches (rejecter_id, rejected_id, match_type)
              VALUES (:a, :b, :mt), (:b, :a, :mt)
              ON CONFLICT DO NOTHING
              """),
-        {"a": sug["receiver_id"], "b": sug["candidate"], "mt": sug["match_type"]},
+        {"a": sug["receiver_id"], "b": sug["candidate_id"], "mt": sug["match_type"]},
     )
     
     db.execute(

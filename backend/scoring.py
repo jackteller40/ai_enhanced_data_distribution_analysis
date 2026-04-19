@@ -3,7 +3,7 @@ Match Scoring
 
 function that takes two profiles + weights + match_type and returns a float
 in [0, 1.15]. 1.0 = perfect alignment on everything the user cares about.
-0.15 extra for the "canidate already liked you" bonus.
+0.15 extra for the "candidate already liked you" bonus.
 
 """
 
