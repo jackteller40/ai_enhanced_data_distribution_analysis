@@ -115,6 +115,8 @@ class RomanticPreference(Base):
     relationship_style   = Column(Enum('something serious', 'open for anything', 'short-term fun', name="relationship_type_enum", create_type=False), nullable=True)
     priority_weights     = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
     updated_at           = Column(DateTime(timezone=True), server_default=func.now())
+    min_preferred_height = Column(Integer, nullable=True)
+    max_preferred_height = Column(Integer, nullable=True)
 
 
 class RoommatePreference(Base):

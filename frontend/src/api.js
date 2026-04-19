@@ -59,4 +59,6 @@ export const api = {
   // Preferences (Updated names to perfectly match Profile.jsx)
   updateRomanticPreferences: (data) => fetchWithAuth('/preferences/romantic', { method: 'PUT', body: JSON.stringify(data) }),
   updateRoommatePreferences: (data) => fetchWithAuth('/preferences/roommate', { method: 'PUT', body: JSON.stringify(data) }),
+  getRomanticPreferences: () => fetchWithAuth('/preferences/romantic'),
+  getRoommatePreferences: () => fetchWithAuth('/preferences/roommate'),
 };

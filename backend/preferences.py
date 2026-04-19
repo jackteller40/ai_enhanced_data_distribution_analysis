@@ -36,4 +36,20 @@ def upsert_roommate_preferences(
     db.commit()
     db.refresh(prefs)
     return prefs
+
+def get_romantic_preferences(account, db):
+    prefs = db.query(models.RomanticPreference).filter(
+        models.RomanticPreference.profile_id == account.profile_id
+    ).first()
+    if not prefs:
+        raise HTTPException(status_code=404, detail="Romantic preferences not found")
+    return prefs
+
+def get_roommate_preferences(account, db):
+    prefs = db.query(models.RoommatePreference).filter(
+        models.RoommatePreference.profile_id == account.profile_id
+    ).first()
+    if not prefs:
+        raise HTTPException(status_code=404, detail="Roommate preferences not found")
+    return prefs
     

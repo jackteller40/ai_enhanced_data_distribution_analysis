@@ -43,34 +43,52 @@ export default function Profile() {
   });
 
   useEffect(() => {
-    // In a full build, you'd fetch all 3 endpoints here. 
-    // For now, we fetch the base profile and let the user overwrite prefs.
-    api.getProfile()
-      .then((data) => {
-        if (data) {
-          setForm(prev => ({
-            ...prev,
-            display_name: data.display_name || "", 
-            major: data.major || "",
-            graduation_year: data.graduation_year || "2026", 
-            bio: data.bio || "",
-            favorite_bar: data.favorite_bar || "",
-            likes_going_out: data.likes_going_out === null ? "" : String(data.likes_going_out),
-            smokes: data.smokes === null ? "" : String(data.smokes),
-            nicotine_lover: data.nicotine_lover === null ? "" : String(data.nicotine_lover),
-            height: data.height || "", 
-            gender: data.gender || "",
-            looking_for: data.looking_for || [],
-            romantically_searching_for: data.romantically_searching_for || "",
-            clubs: (data.clubs || []).join(", "),
-            varsity_sports: (data.varsity_sports || []).join(", "),
-            interests: (data.interests || []).join(", "),
-          }));
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+    Promise.all([
+      api.getProfile().catch(() => null),
+      api.getRomanticPreferences().catch(() => null),
+      api.getRoommatePreferences().catch(() => null),
+    ]).then(([profile, romantic, roommate]) => {
+      setForm(prev => ({
+        ...prev,
+        // Base profile
+        ...(profile && {
+          display_name: profile.display_name || "",
+          major: profile.major || "",
+          graduation_year: profile.graduation_year || "2026",
+          bio: profile.bio || "",
+          favorite_bar: profile.favorite_bar || "",
+          likes_going_out: profile.likes_going_out === null ? "" : String(profile.likes_going_out),
+          smokes: profile.smokes === null ? "" : String(profile.smokes),
+          nicotine_lover: profile.nicotine_lover === null ? "" : String(profile.nicotine_lover),
+          height: profile.height || "",
+          gender: profile.gender || "",
+          looking_for: profile.looking_for || [],
+          romantically_searching_for: profile.romantically_searching_for || "",
+          clubs: (profile.clubs || []).join(", "),
+          varsity_sports: (profile.varsity_sports || []).join(", "),
+          interests: (profile.interests || []).join(", "),
+        }),
+        // Romantic prefs
+        ...(romantic && {
+          interested_in_genders: romantic.interested_in_genders || [],
+          min_grad_yr: romantic.min_grad_yr || "",
+          max_grad_yr: romantic.max_grad_yr || "",
+          min_preferred_height: romantic.min_preferred_height || "",
+          max_preferred_height: romantic.max_preferred_height || "",
+        }),
+        // Roommate prefs
+        ...(roommate && {
+          roommate_gender_preference: roommate.roommate_gender_preference || "",
+          sleep_schedule: roommate.sleep_schedule || "",
+          cleanliness: roommate.cleanliness || "3",
+          noise_tolerance: roommate.noise_tolerance || "3",
+          ok_with_pets: roommate.ok_with_pets === null ? "" : String(roommate.ok_with_pets),
+          guests_frequency: roommate.guests_frequency || "",
+          on_campus: roommate.on_campus === null ? "" : String(roommate.on_campus),
+        }),
+      }));
+    }).finally(() => setLoading(false));
+}, []);
 
   function handleChange(e) {
     const { name, value } = e.target;

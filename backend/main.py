@@ -274,3 +274,17 @@ def get_matches(
             "conversation_id": str(r["conversation_id"]) if r["conversation_id"] else None
         })
     return out
+
+@app.get("/preferences/romantic", response_model=schemas.RomanticPreferencesResponse)
+def get_romantic_preferences(
+    db: Session = Depends(get_db),
+    current_user: models.Account = Depends(auth.get_current_user)
+):
+    return preferences.get_romantic_preferences(current_user, db)
+
+@app.get("/preferences/roommate", response_model=schemas.RoommatePreferencesResponse)
+def get_roommate_preferences(
+    db: Session = Depends(get_db),
+    current_user: models.Account = Depends(auth.get_current_user)
+):
+    return preferences.get_roommate_preferences(current_user, db)
