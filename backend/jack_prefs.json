@@ -1,0 +1,12 @@
+{
+  "interested_in_genders": ["women"],
+  "min_grad_yr": 2024,
+  "max_grad_yr": 2029,
+  "priority_weights": {
+    "major": 0.8,
+    "clubs": 1.0,
+    "interests": 0.9,
+    "smoking": 1.0,
+    "going_out": 0.7
+  }
+}

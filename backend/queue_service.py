@@ -108,6 +108,12 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
                     WHERE r.match_type = :match_type AND (
                     (r.rejecter_id = :me AND r.rejected_id = p.profile_id)
                     OR (r.rejected_id = :me AND r.rejecter_id = p.profile_id))
+                )AND NOT EXISTS (
+                SELECT 1 FROM suggestions s
+                WHERE s.receiver_id = :me
+                  AND s.candidate_id = p.profile_id
+                  AND s.match_type = :match_type
+                  AND s.status IN ('liked', 'matched')
                 )
                 LIMIT 100
                 """),
