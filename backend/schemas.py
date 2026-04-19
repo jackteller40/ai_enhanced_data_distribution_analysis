@@ -88,3 +88,66 @@ class ConversationResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        
+class RomanticPreferencesRequest(BaseModel):
+    interested_in_genders: Optional[list[str]] = None
+    min_grad_yr: Optional[int] = None
+    max_grad_yr: Optional[int] = None
+    min_preferred_height: Optional[int] = None
+    max_preferred_height: Optional[int] = None
+    priority_weights: Optional[dict] = None
+
+class RoommatePreferencesRequest(BaseModel):
+    roomate_gender_preference: Optional[str] = None
+    sleep_schedule: Optional[str] = None
+    cleanlieness: Optional[int] = None
+    noise_tolerance: Optional[int] = None
+    ok_with_pets: Optional[bool] = None
+    guests_frequency: Optional[str] = None
+    on_campus: Optional[bool] = None
+    priority_weights: Optional[dict] = None
+    
+class RomanticPreferencesResponse(BaseModel):
+    profile_id: uuid.UUID
+    interested_in_genders: Optional[List[str]]
+    min_grad_yr: Optional[int]
+    max_grad_yr: Optional[int]
+    min_preferred_height: Optional[int]
+    max_preferred_height: Optional[int]
+    priority_weights: Optional[dict]
+    
+    class Config:
+        from_attributes = True
+        
+class RoommatePreferencesResponse(BaseModel):
+    profile_id: uuid.UUID
+    roomate_gender_preference: Optional[str]
+    sleep_schedule: Optional[str]
+    cleanliness: Optional[int]
+    noise_tolerance: Optional[int]
+    has_pets: Optional[bool]
+    ok_with_pets: Optional[bool]
+    guests_frequency: Optional[str]
+    on_campus: Optional[bool]
+    priority_weights: Optional[dict]
+    
+    class Config:
+        from_attributes = True
+        
+class SuggestionResponse(BaseModel):
+    suggestion_id: uuid.UUID
+    candidate_id: uuid.UUID
+    display_name: str
+    score: float
+    
+class MatchResponse(BaseModel):
+    match_id: uuid.UUID
+    match_type: str
+    matched_at: datetime
+    other_profile_id: uuid.UUID
+    other_display_name: str
+    conversation_id: Optional[uuid.UUID]
+    
+class LikeResponse(BaseModel):
+    status: str #liked/matched/noop
+    active_match_id: Optional[uuid.UUID]

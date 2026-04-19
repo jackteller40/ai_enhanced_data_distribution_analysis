@@ -155,3 +155,62 @@ def get_queue(
         return build_queue(current_user.profile_id, match_type, db)
     except ValueError as e:
         raise HTTPException(status_code = 400, detail = str(e))
+    
+# ── Preferences ──────────────────────────────────
+
+import preferences
+
+@app.put("/preferences/romantic", response_model = schemas.RomanticPreferencesResponse)
+def set_romantic_preferences(
+    body: schemas.RomanticPreferencesRequest,
+    db: Session = Depends(get_db),
+    current_user: models.Account = Depends(auth.get_current_user)
+):
+    return preferences.upsert_romantic_preferences(current_user, body, db)
+
+@app.put("/preferences/roommate", response_model = schemas.RoommatePreferencesResponse)
+def set_roommate_preferences(
+    body: schemas.RoommatePreferencesRequest,
+    db: Session = Depends(get_db),
+    current_user: models.Account = Depends(auth.get_current_user)
+):
+    return preferences.upsert_roommate_preferences(current_user, body, db)
+
+# ── Matches ──────────────────────────────────
+@app.get("/matches", response_model = list[schemas.MatchResponse])
+def get_matches(
+    db: Session = Depends(get_db),
+    current_user: models.Account = Depends(auth.get_current_user)
+):
+    rows = db.execute(
+        text("""
+             SELECT am.id, am.match_type, am.matched_at,
+                    am.profile_id_a, am.profile_id_b,
+                    p_a.display_name AS name_a,
+                    p_b.display_name AS name_b,
+                    c.id AS conversation_id
+             FROM active_matches am
+             JOIN profiles p_a ON am.profile_id_a = p_a.profile_id
+             JOIN profiles p_b ON am.profile_id_b = p_b.profile_id
+             LEFT JOIN conversations c ON c.active_match_id = am.id
+             WHERE :me IN (am.profile_id_a, am.profile_id_b)
+             ORDER BY am.matched_at DESC
+        """),
+        {"me": current_user.profile_id}
+    ).mappings().all()
+    
+    out = []
+    for r in rows:
+        if r["profile_id_a"] == current_user.profile_id:
+            other_id, other_name = r["profile_id_b"], r["name_b"]
+        else:
+            other_id, other_name = r["profile_id_a"], r["name_a"]
+        out.append({
+            "match_id": str(r["id"]),
+            "match_type": r["match_type"],
+            "matched_at": r["matched_at"],
+            "other_profile_id": str(other_id),
+            "other_display_name": other_name,
+            "conversation_id": str(r["conversation_id"]) if r["conversation_id"] else None
+        })
+    return out
