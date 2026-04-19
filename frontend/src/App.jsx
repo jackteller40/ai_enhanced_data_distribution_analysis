@@ -15,15 +15,15 @@ function ProtectedRoute({ token, children }) {
 }
 
 export default function App() {
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [token, setToken] = useState(localStorage.getItem("jwt_token") || null);
 
   function handleLogin(newToken) {
-    localStorage.setItem("token", newToken);
+    localStorage.setItem("jwt_token", newToken);
     setToken(newToken);
   }
 
   function handleLogout() {
-    localStorage.removeItem("token");
+    localStorage.removeItem("jwt_token");
     setToken(null);
   }
 
