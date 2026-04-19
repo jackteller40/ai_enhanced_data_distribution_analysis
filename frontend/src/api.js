@@ -55,4 +55,11 @@ export const api = {
   getMessages: (conversationId) => fetchWithAuth(`/conversations/${conversationId}/messages`),
   sendMessage: (conversationId, messageData) => fetchWithAuth(`/conversations/${conversationId}/messages`, { method: 'POST', body: JSON.stringify(messageData) }),
   markRead: (conversationId) => fetchWithAuth(`/conversations/${conversationId}/read`, { method: 'POST' }),
+
+  // Matches
+  getMatches: () => fetchWithAuth('/matches'),
+
+  // Preferences
+  setRomanticPreferences: (data) => fetchWithAuth('/preferences/romantic', { method: 'PUT', body: JSON.stringify(data) }),
+  setRoommatePreferences: (data) => fetchWithAuth('/preferences/roommate', { method: 'PUT', body: JSON.stringify(data) }),
 };

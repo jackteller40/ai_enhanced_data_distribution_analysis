@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from db import get_db
 import models, schemas, auth, profile, conversation
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 app = FastAPI(title="MatchApp API")
 

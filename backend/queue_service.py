@@ -15,12 +15,12 @@ def _parse_pg_array(val):
     return [p.strip() for p in next(reader, [])]
 
 def profile_to_dict(row) -> dict:
+    gender = row.get("gender")
     #convert a profile's row into the shape scoring.py expects
-    gender = row.gender
     if isinstance(gender, list):
         gender = gender[0] if gender else None
     return{
-        "gender": row.get("gender"),
+        "gender": gender,
         "graduation_year": row.get("graduation_year"),
         "major": row.get("major"),
         "clubs": _parse_pg_array(row.get("clubs")),
@@ -132,15 +132,20 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
     scored = []
     for c in candidate_rows:
         c_prefs_row = prefs_by_id.get(c["profile_id"])
-        if not c_prefs_row: continue
-        s = score(
-            receiver = receiver_dict,
-            receiver_prefs = receiver_prefs_dict,
-            candidate = profile_to_dict(c),
-            candidate_prefs = prefs_adapter(c_prefs_row),
-            match_type = match_type,
-            weights = weights
-        )
+        if not c_prefs_row:
+            continue
+        try:
+            s = score(
+                receiver = receiver_dict,
+                receiver_prefs = receiver_prefs_dict,
+                candidate = profile_to_dict(c),
+                candidate_prefs = prefs_adapter(c_prefs_row),
+                match_type = match_type,
+                weights = weights
+            )
+        except Exception as e:
+            print(f"ERROR scoring candidate {c.get('profile_id')}: {e}")
+            continue
         if s <= 0.0: continue
         scored.append((c, s))
         
@@ -161,10 +166,18 @@ def get_queue(receiver_id: UUID, match_type: str, db: Session, limit: int = 10):
             {"r": receiver_id, "c": c["profile_id"], "m": match_type, "score": s}
         ).scalar()
         suggestions_out.append({
-            "suggestion_id": str(sug_id),
-            "candidate_id": str(c["profile_id"]),
-            "display_name": c["display_name"],
-            "score": round (s, 3)
+            "id": str(sug_id),
+            "agent_explanation": None,
+            "match_score": round(s, 3),
+            "candidate_profile": {
+                "display_name": c["display_name"],
+                "graduation_year": c["graduation_year"],
+                "major": c["major"],
+                "bio": c["bio"],
+                "likes_going_out": c["likes_going_out"],
+                "clubs": list(c["clubs"] or []),
+                "photos": [],
+            }
         })
         
     db.commit()
