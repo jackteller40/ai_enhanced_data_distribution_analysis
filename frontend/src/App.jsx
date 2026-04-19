@@ -37,7 +37,7 @@ export default function App() {
           path="/profile"
           element={
             <ProtectedRoute token={token}>
-              <Profile token={token} onLogout={handleLogout} />
+              <Profile onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
@@ -45,7 +45,7 @@ export default function App() {
           path="/queue"
           element={
             <ProtectedRoute token={token}>
-              <Queue token={token} onLogout={handleLogout} />
+              <Queue onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
@@ -53,7 +53,7 @@ export default function App() {
           path="/matches"
           element={
             <ProtectedRoute token={token}>
-              <Matches token={token} onLogout={handleLogout} />
+              <Matches onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
@@ -61,7 +61,7 @@ export default function App() {
           path="/chat/:conversationId"
           element={
             <ProtectedRoute token={token}>
-              <Chat token={token} onLogout={handleLogout} />
+              <Chat onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
