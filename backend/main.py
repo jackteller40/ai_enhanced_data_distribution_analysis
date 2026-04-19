@@ -2,9 +2,18 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from db import get_db
 import models, schemas, auth, profile, conversation
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="MatchApp API")
 
+# Add this block to allow your Vite frontend to talk to FastAPI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"], # Your Vite dev server port
+    allow_credentials=True,
+    allow_methods=["*"], # Allows GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"], # Allows Authorization header
+)
 
 # ── Auth ──────────────────────────────────────────
 
